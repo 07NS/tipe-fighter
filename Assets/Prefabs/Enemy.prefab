@@ -169,7 +169,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   effect: {fileID: 3583099870774133314}
-  constVel: -1
+  constVel: -100
 --- !u!1 &6831338429365757340
 GameObject:
   m_ObjectHideFlags: 0

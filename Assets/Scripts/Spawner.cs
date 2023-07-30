@@ -30,7 +30,6 @@ public class Spawner : MonoBehaviour
         spawnPos = new Vector2(x, y);
         GameObject en = Instantiate(enemy,spawnPos,Quaternion.identity,transform);
         yield return new WaitForSeconds(d);
-        Debug.Log("spawn");
         coroutine = SpawnAfterDelay(delay);
         StartCoroutine(coroutine);
     }

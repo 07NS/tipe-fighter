@@ -6,17 +6,22 @@ using UnityEngine.UI;
 public class Enemy : MonoBehaviour
 {
     [SerializeField] ParticleSystem effect;
-    [SerializeField] float constVel = -1f;
+    [SerializeField] float constVel = -10f;
     Rigidbody2D rb;
     TextMesh tm;
-    string name;
+    string enemyString;
+    int lifeLeft;
+    MainShip mainShip = MainShip.Instance;
+    public LinkedListNode<Enemy> Node;
 
-    // Start is called before the first frame update
     private void Awake()
     {
         tm = GetComponentInChildren<TextMesh>();
-        name = GetRandomWord();
-        tm.text = name;
+        enemyString = GetRandomWord();
+        lifeLeft = enemyString.Length;
+        tm.text = enemyString;
+        Debug.Log(enemyString);
+        this.Node = mainShip.spawnedEnemies[enemyString[0]-'a'].AddLast(this);
     }
     void Start()
     {
@@ -26,17 +31,19 @@ public class Enemy : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        rb.velocity = new Vector2(0, constVel);
+        rb.velocity = new Vector2(0, constVel * Time.deltaTime);
     }
 
     private string GetRandomWord()
     {
         string word = "";
-        var alphabets = new Dictionary<int, string> {
-            {1,"A"}, {2,"B"}, {3,"C"}, {4,"D"}, {5,"E"}, {6,"F"}, {7,"G"}, {8,"H"}, {9,"I"}, {10,"J"}, {11,"K"}, {12,"L"}, {13,"M"}, {14,"N"}, {15,"O"}, {16,"P"}, {17,"Q"}, {18,"R"}, {19,"S"}, {20,"T"}, {21,"U"}, {22,"V"}, {23,"W"}, {24,"X"}, {25,"Y"}, {26,"Z"}
+        var alphabets = new Dictionary<int, char> {
+            {1,'a'}, {2,'b'}, {3,'c'}, {4,'d'}, {5,'e'}, {6,'f'}, {7,'g'}, {8,'h'}, {9,'i'}, {10,'j'}, {11,'k'}, {12,'l'},
+            {13,'m'}, {14,'n'}, {15,'o'}, {16,'p'}, {17,'q'}, {18,'r'}, {19,'s'}, {20,'t'}, {21,'u'}, {22,'v'}, {23,'w'},
+            {24,'x'}, {25,'y'}, {26,'z'}
         };
         int iterations = 0;
-        while (iterations<4)//TODO: change to variable
+        while (iterations<3)//TODO: change to variable
         {
             word+=alphabets[Random.Range(1, 27)];
             iterations++;
@@ -45,11 +52,24 @@ public class Enemy : MonoBehaviour
     }
     public string GetName()
     {
-        return name;
+        return enemyString;
     }
-    public void Destroy()
+
+    public char GetExposedCharacter()
     {
-        StartCoroutine(WaitAndDestroy());
+        return enemyString[^lifeLeft];
+    }
+
+    public char Hurt(int dmg=1)
+    {
+        Debug.Log("Hurt: " + this.enemyString);
+        lifeLeft-=dmg;
+        if (lifeLeft <= 0)
+        {
+            StartCoroutine(WaitAndDestroy());
+            return ' ';
+        }
+        return enemyString[^lifeLeft]; //same as enemyString.Length-LifeLeft
     }
     private IEnumerator WaitAndDestroy()
     {
